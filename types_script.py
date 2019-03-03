@@ -20,6 +20,7 @@ print(baby_names)
 
 #Reading in records and running them in a loop
 records = pd.read_csv('baby_names.csv')
+records = records.rename(columns = {'BRITH_YEAR': 'Birth_Year'})
 records_list = records.values.tolist()
 # Create an empty list: baby_names
 baby_names = []
@@ -47,4 +48,39 @@ for idx, pair in enumerate(pairs):
     # Print the rank and names associated with each rank
     print('Rank {}: {} and {}'.format(idx, girl_name, boy_name))
 
-    
+#Working with sets
+boy_set = set(records.loc[(records['GENDER'] == "MALE")]['NAME'].tolist())
+girl_set = set(records.loc[(records['GENDER'] == "FEMALE")]['NAME'].tolist())
+
+#find intersection
+bg_intersect = boy_set.intersection(girl_set)
+
+#Looking at how names have changed between 2011-2014
+two11_two14 = records.loc[(records['Birth_Year'] == 2011) | (records['Birth_Year'] == 2014)].values.tolist()
+
+baby_2011 = set()
+baby_2014 = set()
+
+for row in two11_two14:
+    if row[0] == 2011:
+        baby_2011.add(row[3])
+    else:
+        baby_2014.add(row[3])
+
+len(baby_2011.difference(baby_2014))
+#Dictionaries
+##Unpacking a set into a dictionary
+names = {}
+for rank, name in enumerate(baby_2011):
+    names[rank] = name
+
+#Note the need to convert names in a list via the sorted call before being able to slice
+for rank in sorted(names, reverse = True)[:10]:
+    print(names[rank])
+
+#Nuilding a nested dict
+x = []
+for i in zip(records['Birth_Year'], range(len(records)), records['NAME']):
+    x.append(list(i))
+
+y = {x[0][0]: {x[0][1]: x[0][2]}}
