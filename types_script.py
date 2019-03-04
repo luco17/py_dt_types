@@ -78,9 +78,54 @@ for rank, name in enumerate(baby_2011):
 for rank in sorted(names, reverse = True)[:10]:
     print(names[rank])
 
-#Nuilding a nested dict
+#Nuilding a list
 x = []
 for i in zip(records['Birth_Year'], range(len(records)), records['NAME']):
     x.append(list(i))
 
-y = {x[0][0]: {x[0][1]: x[0][2]}}
+#Creating two varables for 2011 and 2014
+baby_2011_l = []
+baby_2014_l = []
+
+for row in two11_two14:
+    if row[0] == 2011:
+        baby_2011_l.append(row[3])
+    else:
+        baby_2014_l.append(row[3])
+
+baby_2011_d = {}
+for rank, row in enumerate(baby_2011_l):
+    baby_2011_d[rank] = row
+
+baby_2014_d = {}
+for rank, row in enumerate(baby_2014_l):
+    baby_2014_d[rank] = row
+
+#Creating the nest
+nested_years = {2011: baby_2011_d, 2014: baby_2014_d}
+
+ # Looping to pull out names in given years
+for year in nested_years:
+    print(year, nested_years[year].get(3, 'Unknown'))
+
+#Find lowest ranked name for each year
+for year in nested_years:
+    for rank in sorted(nested_years[year], reverse = True)[:1]:
+        if not rank:
+            print(year, 'No Data Available')
+        print(year, nested_years[year].get(rank, 'Not Available'))
+
+#.pop() allows you to remove an element of a dict to save for later
+# Using 'IN' to check values exist in a dictionary
+if 2011 in nested_years:
+    print('Found 2011')
+
+if 1 in nested_years[2014]:
+    print('Found Rank 1 in 2014')
+else:
+    print('Rank 1 missing from 2014')
+
+if 5 in nested_years[2011]:
+   print('Found Rank 5')
+
+#  
