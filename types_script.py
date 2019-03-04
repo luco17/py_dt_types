@@ -1,4 +1,5 @@
 import pandas as pd, numpy as np, matplotlib.pyplot as plt
+from collections import Counter
 
 #Containers hold types of data, they can be mutable (list, set) or immutable (tuple)
 ##Lists
@@ -78,54 +79,46 @@ for rank, name in enumerate(baby_2011):
 for rank in sorted(names, reverse = True)[:10]:
     print(names[rank])
 
-#Nuilding a list
-x = []
-for i in zip(records['Birth_Year'], range(len(records)), records['NAME']):
-    x.append(list(i))
+#Nuilding a list of tuples
+names_year_tuple = list(zip(records['Birth_Year'], range(len(records)), records['NAME']))
 
 #Creating two varables for 2011 and 2014
-baby_2011_l = []
-baby_2014_l = []
+name_year_dict = {}
 
-for row in two11_two14:
-    if row[0] == 2011:
-        baby_2011_l.append(row[3])
-    else:
-        baby_2014_l.append(row[3])
+for year, count, names in names_year_tuple:
+    if year not in name_year_dict:
+        name_year_dict[year] = []
+    name_year_dict[year].append((count, names))
 
-baby_2011_d = {}
-for rank, row in enumerate(baby_2011_l):
-    baby_2011_d[rank] = row
+ # Looping to pull out top 5 names in given years
+for year in name_year_dict:
+    print(year, name_year_dict[year][:5])
 
-baby_2014_d = {}
-for rank, row in enumerate(baby_2014_l):
-    baby_2014_d[rank] = row
-
-#Creating the nest
-nested_years = {2011: baby_2011_d, 2014: baby_2014_d}
-
- # Looping to pull out names in given years
-for year in nested_years:
-    print(year, nested_years[year].get(3, 'Unknown'))
-
-#Find lowest ranked name for each year
-for year in nested_years:
-    for rank in sorted(nested_years[year], reverse = True)[:1]:
-        if not rank:
-            print(year, 'No Data Available')
-        print(year, nested_years[year].get(rank, 'Not Available'))
-
-#.pop() allows you to remove an element of a dict to save for later
 # Using 'IN' to check values exist in a dictionary
-if 2011 in nested_years:
-    print('Found 2011')
-
-if 1 in nested_years[2014]:
+if 2011 in name_year_dict[2014]:
     print('Found Rank 1 in 2014')
 else:
     print('Rank 1 missing from 2014')
 
-if 5 in nested_years[2011]:
-   print('Found Rank 5')
+# Counters
+stations_df = pd.read_csv("cta_daily_station_totals.csv")
 
-#  
+stations = stations_df['stationname'].values.tolist()
+
+#Count 5 most popular stations
+stn_cnt = Counter(stations)
+stn_cnt.most_common(10)
+
+#Creating a nested dict of rider dates
+stations_df.head(2)
+
+entries = list(zip(stations_df.date, stations_df.stationname, stations_df.rides))
+rider_dict = {}
+
+for date, stop, riders in entries:
+    if date not in rider_dict:
+        rider_dict[date] = []
+    rider_dict[date].append((stop, riders))
+
+#Count by a given date
+rider_dict['03/09/2016']
