@@ -1,5 +1,5 @@
 import pandas as pd, numpy as np, matplotlib.pyplot as plt
-from collections import Counter
+from collections import Counter, defaultdict, OrderedDict
 
 #Containers hold types of data, they can be mutable (list, set) or immutable (tuple)
 ##Lists
@@ -115,3 +115,22 @@ for date, stop, riders in entries:
 
 #Count by a given date
 rider_dict['03/09/2016']
+
+#Creating a default dict
+riders_by_station = defaultdict(list)
+
+for date, stop, riders in entries:
+    # Using only two of the cols to create riders by station, note you have to use all three variables from the list though
+    riders_by_station[stop].append(riders)
+
+#Creating an ordered dict to show riders by date
+entries_2 = list(zip(stations_df.date, stations_df.rides))
+#OrderedDicts order the dictionaries
+ridership_date = OrderedDict()
+
+for date, riders in entries_2:
+    # If a key does not exist in ridership_date, set it to 0
+    if not date in ridership_date:
+        ridership_date[date] = 0
+    # Add riders to the date key in ridership_date
+    ridership_date[date] += riders
