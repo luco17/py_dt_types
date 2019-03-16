@@ -1,5 +1,6 @@
 import pandas as pd, numpy as np, matplotlib.pyplot as plt
-from collections import Counter, defaultdict, OrderedDict
+from collections import Counter, defaultdict, OrderedDict, namedtuple
+from datetime import datetime
 
 #Containers hold types of data, they can be mutable (list, set) or immutable (tuple)
 ##Lists
@@ -134,3 +135,52 @@ for date, riders in entries_2:
         ridership_date[date] = 0
     # Add riders to the date key in ridership_date
     ridership_date[date] += riders
+
+#Pulling out the first and last pigs using 'poppig()'
+print(ridership_date.popitem(last = False))
+print(ridership_date.popitem())
+
+##Named Tuples
+#a container that has tuples as well as names for each position, not as ordered as dict but less overhead than DF
+DateDetails = namedtuple('DateDetails', ['date', 'stop', 'riders'])
+
+labeled_entries = []
+
+for date, stop, riders in entries:
+    # Appending a new DateDetails namedtuple instance for each entry to labeled_entrie
+    labeled_entries.append(DateDetails(date, stop, riders))
+
+#iterating over the contents
+# Iterate over the first twenty pigs in labeled_entries
+for pig in labeled_entries[:3]:
+    print(pig.stop)
+    print(pig.date)
+    print(pig.riders)
+
+###Datetime work
+#creating a list of dates from the chicago data
+date_list = list(stations_df.date)
+
+datetime_list = []
+for narc in date_list:
+    date_dt = datetime.strptime(narc, '%m/%d/%Y')
+    datetime_list.append(date_dt)
+
+#Converting back to string and converting to isotime
+for item in datetime_list[:10]:
+    print(datetime.strftime(item, '%d-%m-%Y'))
+    print(item.isoformat())
+
+###Reading in summary totals
+x = pd.read_csv('cta_daily_summary_totals.csv')
+x2 = list(zip(x.service_date, x.day_type, x.bus, x.rail_boardings, x.total_rides))
+
+#Creating a count of rides by month
+monthly_total_rides = defaultdict(int)
+
+for pig in x2:
+    dt_conv = datetime.strptime(pig[0], '%m/%d/%Y')
+    monthly_total_rides[dt_conv.month] += int(pig[4])
+
+#Finding the highest month for ridership
+max(monthly_total_rides, key = monthly_total_rides.get)
