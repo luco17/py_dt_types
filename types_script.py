@@ -82,7 +82,7 @@ for rank in sorted(names, reverse = True)[:10]:
 #Nuilding a list of tuples
 names_year_tuple = list(zip(records['Birth_Year'], range(len(records)), records['NAME']))
 
-#Creating two varables for 2011 and 2014
+#Creating dictionary with years as key and rank, name as value
 name_year_dict = {}
 
 for year, count, names in names_year_tuple:
@@ -90,19 +90,12 @@ for year, count, names in names_year_tuple:
         name_year_dict[year] = []
     name_year_dict[year].append((count, names))
 
- # Looping to pull out top 5 names in given years
+ # Looping to pull out first 5 names in given years
 for year in name_year_dict:
     print(year, name_year_dict[year][:5])
 
-# Using 'IN' to check values exist in a dictionary
-if 2011 in name_year_dict[2014]:
-    print('Found Rank 1 in 2014')
-else:
-    print('Rank 1 missing from 2014')
-
 # Counters
 stations_df = pd.read_csv("cta_daily_station_totals.csv")
-
 stations = stations_df['stationname'].values.tolist()
 
 #Count 5 most popular stations
