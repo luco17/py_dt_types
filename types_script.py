@@ -1,6 +1,7 @@
 import pandas as pd, numpy as np, matplotlib.pyplot as plt
 from collections import Counter, defaultdict, OrderedDict, namedtuple
-from datetime import datetime
+from datetime import datetime, timedelta
+from pytz import timezone
 
 #Containers hold types of data, they can be mutable (list, set) or immutable (tuple)
 ##Lists
@@ -172,15 +173,48 @@ for item in datetime_list[:10]:
     print(item.isoformat())
 
 ###Reading in summary totals
-x = pd.read_csv('cta_daily_summary_totals.csv')
-x2 = list(zip(x.service_date, x.day_type, x.bus, x.rail_boardings, x.total_rides))
+df3 = pd.read_csv('cta_daily_summary_totals.csv')
+l3 = list(zip(df3.service_date, df3.day_type, df3.bus, df3.rail_boardings, df3.total_rides))
 
 #Creating a count of rides by month
 monthly_total_rides = defaultdict(int)
 
-for pig in x2:
+for pig in l3:
     dt_conv = datetime.strptime(pig[0], '%m/%d/%Y')
     monthly_total_rides[dt_conv.month] += int(pig[4])
 
 #Finding the highest month for ridership
 max(monthly_total_rides, key = monthly_total_rides.get)
+
+###Working timedeltas
+df3['service_date'] = pd.to_datetime(df3['service_date']).apply(lambda x: datetime.strftime(x, '%Y-%m-%d'))
+
+#Nested dict using dict comprehension
+dct3 = {x: {'day type': y, 'rides': z} for x, y, z in zip(df3.service_date, df3.day_type, df3.total_rides)}
+
+#Creating a timedelta
+prior = timedelta(days = 30)
+
+test_case = pd.to_datetime('2001-09-11')
+
+##Reading ridership on two days
+#test day
+ print('Date: %s, Type: %s, Total Ridership: %s' %
+         (test_case,
+          dct3[test_case]['day type'],
+          dct3[test_case]['rides']))
+
+#30 days prior
+ print('Date: %s, Type: %s, Total Ridership: %s' %
+         (test_case - prior,
+          dct3[(test_case - prior)]['day type'],
+          dct3[(test_case - prior)]['rides']))
+
+#Pendulum an alternative library for working datetimes
+
+###Case study on crime
+df4 = pd.read_csv('crime_sampler.csv')
+
+df4.Date = pd.to_datetime(df4.Date)
+
+l4 = df4.values.tolist()
