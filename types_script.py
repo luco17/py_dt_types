@@ -2,6 +2,7 @@ import pandas as pd, numpy as np, matplotlib.pyplot as plt
 from collections import Counter, defaultdict, OrderedDict, namedtuple
 from datetime import datetime, timedelta
 from pytz import timezone
+import csv
 
 #Containers hold types of data, they can be mutable (list, set) or immutable (tuple)
 ##Lists
@@ -215,6 +216,45 @@ test_case = pd.to_datetime('2001-09-11')
 ###Case study on crime
 df4 = pd.read_csv('crime_sampler.csv')
 
-df4.Date = pd.to_datetime(df4.Date)
+###Creating a list out of the four target columns
+l4 = df4.iloc[:, [0, 2, 4, 5]].values.tolist()
 
-l4 = df4.values.tolist()
+###Finding most common months for crime
+months = Counter()
+
+for pig in l4:
+    date = datetime.strptime(pig[0], "%m/%d/%Y %I:%M:%S %p")
+
+    months[date.month] += 1
+
+###Jan, Feb, July
+months.most_common(3)
+##Creating a dictionary of crime locations by month for 2016
+sites_months = defaultdict(list)
+
+for pig in l4:
+    date = datetime.strptime (pig[0], "%m/%d/%Y %I:%M:%S %p")
+
+    sites_months[date.month].append(pig[2])
+
+ ##Most common crime locations for each month
+ for month, location in sites_months.items():
+     loc_count = Counter(location)
+     print(month, loc_count.most_common(3))
+
+#Reading in a csv as a dictionary
+csvfile = open('crime_sampler.csv', 'r')
+crimes_district = defaultdict(list)
+for row in csv.DictReader(csvfile):
+    district = row.pop('District')
+    crimes_district[district].append(row)
+
+##Crimes by district
+for district, crimes in crimes_district.items():
+    print(district)
+    year_count = Counter()
+    for crime in crimes:
+        if crime['Arrest'] == 'true':
+            year = datetime.strptime(crime['Date'], "%m/%d/%Y %I:%M:%S %p").year
+            year_count[year] += 1
+    print(year_count)
